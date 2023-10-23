@@ -95,6 +95,7 @@ def load_dataset(data_path, args, logger):
     
     dataloader = {}
     for cat in ['train', 'val', 'test']:
+        print('Loading ' + cat + ' data...')
         idx = np.load(os.path.join(data_path, args.years, 'idx_' + cat + '.npy'))
         dataloader[cat + '_loader'] = DataLoader(ptr['data'][..., :args.input_dim], idx, \
                                                  args.seq_len, args.horizon, args.bs, logger)
@@ -127,6 +128,10 @@ def get_dataset_info(dataset):
          'GLA': [base_dir+'gla', base_dir+'gla/gla_rn_adj.npy', 3834],
          'GBA': [base_dir+'gba', base_dir+'gba/gba_rn_adj.npy', 2352],
          'SD': [base_dir+'sd', base_dir+'sd/sd_rn_adj.npy', 716],
+         'METR_LA': [base_dir+'metr_la', '', 207],
+         'PEMS_BAY': [base_dir+'pems_bay', '', 325],
+         'PEMS04': [base_dir+'pems04', '', 307],
+         'PEMS08': [base_dir+'pems08', '', 170],
         }
     assert dataset in d.keys()
     return d[dataset]
