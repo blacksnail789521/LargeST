@@ -8,6 +8,7 @@ import argparse
 from generate_data_for_training import StandardScaler
 
 
+### For METR-LA & PEMS-BAY ###
 def create_h5(dataset: str, filename: str) -> pd.DataFrame:
     # Read the csv file
     csv_path = Path(dataset, filename)
@@ -25,6 +26,46 @@ def create_h5(dataset: str, filename: str) -> pd.DataFrame:
     return df
 
 
+### For METR-LA & PEMS-BAY ###
+def create_adj_from_pkl(dataset: str, filename: str) -> np.ndarray:
+    # Read the pickle file
+    pickle_path = Path(dataset, filename)
+    with open(pickle_path, "rb") as f:
+        pickle_data = pd.read_pickle(f)
+
+    nodes, linked_list, adj_mx = pickle_data
+
+    # Save the array as a npy file
+    np.save(Path(dataset, f"{dataset}_rn_adj.npy"), adj_mx)
+
+    return adj_mx
+
+
+### For PEMS04 & PEMS08 ###
+def create_adj_from_csv(dataset: str, filename: str, nodes: list[int]) -> np.ndarray:
+    # Read the csv file
+    csv_path = Path(dataset, filename)
+    df = pd.read_csv(csv_path)
+
+    # Make sure all the nodes in the df are in the nodes list
+    assert set(df["from"]).issubset(nodes)
+    assert set(df["to"]).issubset(nodes)
+
+    # Create an empty adjacency matrix filled with zeros
+    adj_matrix = pd.DataFrame(0, index=nodes, columns=nodes)
+
+    # Fill the adjacency matrix (fill with 1 if there is a connection)
+    for _, row in df.iterrows():
+        adj_matrix.at[row["from"], row["to"]] = 1
+    
+    # Save the array as a npy file
+    adj_mx = adj_matrix.to_numpy()
+    np.save(Path(dataset, f"{dataset}_rn_adj.npy"), adj_mx)
+
+    return adj_mx
+
+
+### For PEMS04 & PEMS08 ###
 def generate_train_val_test(args, filename: str) -> None:
     data = np.load(Path(args.dataset, filename))["data"]
 
@@ -71,6 +112,7 @@ if __name__ == "__main__":
     # METR_LA
     print("### METR_LA ###")
     df = create_h5("metr_la", "METR-LA.csv")
+    adj_mx = create_adj_from_pkl("metr_la", "adj_mx_METR-LA.pkl")
     subprocess.run(
         "python generate_data_for_training.py --dataset metr_la --years all", shell=True
     )
@@ -78,6 +120,7 @@ if __name__ == "__main__":
     # PEMS_BAY
     print("### PEMS_BAY ###")
     df = create_h5("pems_bay", "PEMS-BAY.csv")
+    adj_mx = create_adj_from_pkl("pems_bay", "adj_mx_PEMS-BAY.pkl")
     subprocess.run(
         "python generate_data_for_training.py --dataset pems_bay --years all",
         shell=True,
@@ -85,6 +128,9 @@ if __name__ == "__main__":
 
     # PEMS04
     print("### PEMS04 ###")
+    adj_mx = create_adj_from_csv(
+        "pems04", "PEMS04.csv", [i for i in range(307)]
+    )  # 307 nodes
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", type=str, default="pems04", help="dataset name")
     parser.add_argument("--years", type=str, default="all", help="just set all here")
@@ -97,6 +143,9 @@ if __name__ == "__main__":
 
     # PEMS04
     print("### PEMS08 ###")
+    adj_mx = create_adj_from_csv(
+        "pems08", "PEMS08.csv", [i for i in range(170)]
+    )  # 170 nodes
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", type=str, default="pems08", help="dataset name")
     parser.add_argument("--years", type=str, default="all", help="just set all here")

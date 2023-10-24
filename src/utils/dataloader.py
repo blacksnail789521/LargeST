@@ -128,10 +128,10 @@ def get_dataset_info(dataset):
          'GLA': [base_dir+'gla', base_dir+'gla/gla_rn_adj.npy', 3834],
          'GBA': [base_dir+'gba', base_dir+'gba/gba_rn_adj.npy', 2352],
          'SD': [base_dir+'sd', base_dir+'sd/sd_rn_adj.npy', 716],
-         'METR_LA': [base_dir+'metr_la', '', 207],
-         'PEMS_BAY': [base_dir+'pems_bay', '', 325],
-         'PEMS04': [base_dir+'pems04', '', 307],
-         'PEMS08': [base_dir+'pems08', '', 170],
+         'METR_LA': [base_dir+'metr_la', base_dir+'metr_la/metr_la_rn_adj.npy', 207],
+         'PEMS_BAY': [base_dir+'pems_bay', base_dir+'pems_bay/pems_bay_rn_adj.npy', 325],
+         'PEMS04': [base_dir+'pems04', base_dir+'pems04/pems04_rn_adj.npy', 307],
+         'PEMS08': [base_dir+'pems08', base_dir+'pems08/pems08_rn_adj.npy', 170],
         }
     assert dataset in d.keys()
     return d[dataset]
